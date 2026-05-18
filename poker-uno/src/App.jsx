@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const COLORS = ['red', 'blue', 'green', 'yellow'];
 const VALUES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Skip', 'Rev', '+2'];
-const PLAYERS = ['You', 'Bad Dog', 'Butcher Pig', 'Raging Bull'];
+const PLAYERS = ['You', 'Seal One', 'Seal Two', 'Seal Three'];
 
 const createDeck = () => {
   let newDeck = [];
@@ -46,14 +46,25 @@ const OpponentHand = ({ count }) => {
   );
 };
 
-const PlayerSprite = ({ name, cardsCount, className, isActive, expression }) => {
+const PlayerSprite = ({ name, cardsCount, className, isActive, expression, spriteId }) => {
   let currentExpression = expression;
   if (!currentExpression && cardsCount === 1) currentExpression = 'uno';
 
+  let imageSuffix = 'default';
+  if (currentExpression === 'uno') imageSuffix = 'uno';
+  else if (currentExpression === 'got-skipped') imageSuffix = 'skipped';
+  else if (currentExpression === 'played-action') imageSuffix = 'action';
+  
+  const imagePath = `/${spriteId}_${imageSuffix}.png`;
+
   return (
     <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
-      <div className={`player-sprite-placeholder ${currentExpression}`} title="Add full body sprite here!">
-        {name} <br/> (Sprite Area)
+      <div className={`player-sprite-container ${currentExpression}`} title={`Drop ${imagePath} in public folder`}>
+        <img 
+          src={imagePath} 
+          alt={name}
+          className="player-sprite-image" 
+        />
         {currentExpression && <div className="expr-tag">{currentExpression.replace('-', ' ').toUpperCase()}</div>}
       </div>
       <OpponentHand count={cardsCount} />
@@ -269,9 +280,9 @@ function App() {
 
       <main className="game-area">
         <div className="opponents-container">
-          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} expression={expressions[1]} />
-          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} expression={expressions[2]} />
-          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} expression={expressions[3]} />
+          <PlayerSprite name="Seal One" spriteId="seal_one" cardsCount={hands[1].length} className="left" isActive={turn === 1} expression={expressions[1]} />
+          <PlayerSprite name="Seal Two" spriteId="seal_two" cardsCount={hands[2].length} className="center" isActive={turn === 2} expression={expressions[2]} />
+          <PlayerSprite name="Seal Three" spriteId="seal_three" cardsCount={hands[3].length} className="right" isActive={turn === 3} expression={expressions[3]} />
         </div>
 
         <div className="poker-table">
