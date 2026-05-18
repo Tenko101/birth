@@ -263,12 +263,6 @@ function App() {
           </div>
         </div>
 
-        <div className="opponents-container">
-          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} />
-          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} />
-          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} />
-        </div>
-
         <div className={`player-hand-container ${turn === 0 ? 'active-turn' : ''}`}>
           <div className="hand">
             {hands[0].map((card, index) => {

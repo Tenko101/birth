@@ -122,9 +122,9 @@ body {
   transform-style: preserve-3d;
 }
 
-.opponent.left { transform: rotate(15deg); }
-.opponent.right { transform: rotate(-15deg); }
-.opponent.center { transform: translateY(-40px); }
+.opponent.left { transform: rotate(15deg) translateZ(-80px); }
+.opponent.right { transform: rotate(-15deg) translateZ(-80px); }
+.opponent.center { transform: translateY(-40px) translateZ(-80px); }
 
 /* The sprite now STANDS UP from the 3D table surface */
 .player-sprite-placeholder {
