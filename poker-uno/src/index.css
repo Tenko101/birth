@@ -73,12 +73,11 @@ body {
   justify-content: center;
   align-items: flex-end;
   padding-bottom: 20px;
-  /* Removed preserve-3d here to prevent player cards clipping through the table */
 }
 
 .poker-table {
   position: absolute;
-  bottom: -45%;
+  bottom: -15%; /* Moved table forward (higher on screen) so center is visible */
   left: 50%;
   transform: translateX(-50%) rotateX(75deg);
   width: 150vw;
@@ -106,88 +105,99 @@ body {
 
 .opponents-container {
   position: absolute;
-  top: 15%; /* Lowered so they sit AT the table */
+  top: 10%; /* Back edge of the table */
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-between;
-  padding: 0 5%;
-  z-index: 5;
+  padding: 0 15%;
+  transform-style: preserve-3d;
 }
 
 .opponent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.3s;
   position: relative;
-  transform: translateY(120px);
+  transform-style: preserve-3d;
 }
 
-.opponent.left { transform: translateY(180px) rotate(10deg); }
-.opponent.right { transform: translateY(180px) rotate(-10deg); }
-.opponent.center { transform: translateY(80px); }
+.opponent.left { transform: rotate(15deg); }
+.opponent.right { transform: rotate(-15deg); }
+.opponent.center { transform: translateY(-40px); }
 
-.opponent.active-turn .player-sprite-placeholder {
-  box-shadow: 0 0 30px var(--glow-orange);
-  border-color: var(--glow-orange);
-}
-
+/* The sprite now STANDS UP from the 3D table surface */
 .player-sprite-placeholder {
   width: 250px;
   height: 380px;
-  background: rgba(0,0,0,0.3);
-  border: 2px dashed #666;
+  background: rgba(0,0,0,0.5);
+  border: 2px dashed #888;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #aaa;
-  font-size: 1rem;
+  color: #ccc;
+  font-size: 1.2rem;
   box-shadow: 0 20px 40px rgba(0,0,0,0.8);
   position: relative;
   transition: all 0.3s;
+  
+  /* Counter-rotate so it faces the camera perfectly while physically sitting AT the table */
+  transform: rotateX(-75deg);
+  transform-origin: bottom center;
+}
+
+.opponent.active-turn .player-sprite-placeholder {
+  box-shadow: 0 0 40px var(--glow-orange);
+  border-color: var(--glow-orange);
+  background: rgba(255, 120, 30, 0.1);
 }
 
 .opponent-hand {
   position: absolute;
-  bottom: 60px;
+  bottom: 0px;
   display: flex;
   justify-content: center;
   z-index: 15;
+  /* Make the cards stand up like the sprite */
+  transform: rotateX(-75deg) translateZ(1px);
+  transform-origin: bottom center;
 }
 
 .opponent-card-back {
-  width: 50px;
-  height: 75px;
+  width: 60px;
+  height: 90px;
   background: #111;
   border: 2px solid #eee;
-  border-radius: 4px;
+  border-radius: 6px;
   background-image: repeating-linear-gradient(45deg, #cc2222 0, #cc2222 5px, #111 5px, #111 10px);
   box-shadow: -2px 2px 5px rgba(0,0,0,0.8);
-  margin: 0 -15px; 
+  margin: 0 -20px; 
   transform-origin: bottom center;
 }
 
 .opponent-stats {
   position: absolute;
-  bottom: -40px;
+  bottom: -60px;
   text-align: center;
-  background: rgba(0,0,0,0.8);
-  padding: 5px 15px;
-  border-radius: 10px;
-  border: 1px solid #444;
+  background: #111;
+  padding: 8px 20px;
+  border-radius: 12px;
+  border: 2px solid #444;
   z-index: 20;
+  
+  /* Inherits the table's rotation automatically, so it lies flat! */
+  box-shadow: -2px 2px 10px rgba(0,0,0,0.9);
 }
 
 .opponent-name {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   text-shadow: 2px 2px 0px #000;
   font-weight: bold;
 }
 
-/* Center Board now inside the table */
+/* Center Board (Flat on table) */
 .center-board {
   position: absolute;
   top: 50%;
@@ -209,7 +219,7 @@ body {
   position: relative;
   background-image: repeating-linear-gradient(45deg, #1a1a1a 0, #1a1a1a 8px, #111 8px, #111 16px);
   transition: transform 0.1s;
-  transform: translateZ(5px); /* Gives it 3D depth relative to table */
+  transform: translateZ(5px);
 }
 
 .draw-pile::after {
