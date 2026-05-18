@@ -269,9 +269,6 @@ function App() {
         </div>
       )}
 
-      <header className="header">
-        <h1>UNDERGROUND UNO</h1>
-      </header>
 
       <div className="turn-indicator">
         Current Turn: <strong>{PLAYERS[turn]}</strong> 

@@ -52,19 +52,7 @@ body {
   perspective: 1000px;
 }
 
-.header {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 200;
-}
 
-.header h1 {
-  font-size: 2rem;
-  color: #f2e2d9;
-  text-shadow: 2px 2px 4px #000, 0 0 10px var(--glow-orange);
-  letter-spacing: 2px;
-}
 
 .game-area {
   flex: 1;
@@ -371,10 +359,11 @@ body {
   background: rgba(0, 0, 0, 0.7);
   padding: 10px 20px;
   border-radius: 8px;
-  border: 1px solid var(--glow-orange);
+  border: 1px solid #c084fc;
+  box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
   z-index: 200;
   font-size: 1.2rem;
-  color: var(--glow-orange);
+  color: #c084fc;
 }
 
 .winner-overlay {
