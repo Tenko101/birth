@@ -55,7 +55,8 @@ const PlayerSprite = ({ name, cardsCount, className, isActive, expression, sprit
   else if (currentExpression === 'got-skipped') imageSuffix = 'skipped';
   else if (currentExpression === 'played-action') imageSuffix = 'action';
   
-  const imagePath = `/${spriteId}_${imageSuffix}.png`;
+  const basePath = import.meta.env.BASE_URL || '/';
+  const imagePath = `${basePath}${spriteId}_${imageSuffix}.png`;
 
   return (
     <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
