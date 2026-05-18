@@ -1,8 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Card = ({ color, value, symbol, style }) => {
+const COLORS = ['red', 'blue', 'green', 'yellow'];
+const VALUES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Skip', 'Rev', '+2'];
+const PLAYERS = ['You', 'Bad Dog', 'Butcher Pig', 'Raging Bull'];
+
+const createDeck = () => {
+  let newDeck = [];
+  let id = 1;
+  COLORS.forEach(color => {
+    VALUES.forEach(value => {
+      let symbol = value;
+      if (value === 'Skip') symbol = '⊘';
+      if (value === 'Rev') symbol = '↺';
+      
+      newDeck.push({ id: id++, color, value, symbol });
+      if (value !== '0') {
+        newDeck.push({ id: id++, color, value, symbol });
+      }
+    });
+  });
+  // Shuffle
+  return newDeck.sort(() => Math.random() - 0.5);
+};
+
+const Card = ({ color, value, symbol, style, disabled }) => {
   return (
-    <div className={`playing-card ${color}`} style={style}>
+    <div className={`playing-card ${color} ${disabled ? 'disabled' : ''}`} style={style}>
       <span className="card-value top-left">{value}</span>
       <div className="center-symbol">{symbol}</div>
       <span className="card-value bottom-right">{value}</span>
@@ -10,10 +33,10 @@ const Card = ({ color, value, symbol, style }) => {
   );
 };
 
-const PlayerSprite = ({ name, cardsCount, className }) => (
-  <div className={`opponent ${className}`}>
-    <div className="player-sprite-placeholder" title="Add custom sprite here later!">
-      {name}
+const PlayerSprite = ({ name, cardsCount, className, isActive }) => (
+  <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
+    <div className="player-sprite-placeholder" title="Add full body sprite here!">
+      {name} <br/> (Sprite Area)
     </div>
     <div className="opponent-stats">
       <div className="opponent-name">{name}</div>
@@ -23,86 +46,225 @@ const PlayerSprite = ({ name, cardsCount, className }) => (
 );
 
 function App() {
-  const [hand, setHand] = useState([
-    { id: 1, color: 'red', value: '7', symbol: '7' },
-    { id: 2, color: 'black', value: '+4', symbol: '+4' },
-    { id: 3, color: 'green', value: 'A', symbol: 'A' },
-    { id: 4, color: 'yellow', value: 'K', symbol: 'K' },
-    { id: 5, color: 'red', value: 'Draw 2', symbol: '+2' }
-  ]);
-  
-  const [discard, setDiscard] = useState({ color: 'blue', value: '5', symbol: '5' });
-  const [discardRotation] = useState(Math.floor(Math.random() * 20) - 10);
+  const [deck, setDeck] = useState([]);
+  const [discardPile, setDiscardPile] = useState([]);
+  const [hands, setHands] = useState([[], [], [], []]);
+  const [turn, setTurn] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [winner, setWinner] = useState(null);
+  const [discardRotation, setDiscardRotation] = useState(0);
 
-  const drawCard = () => {
-    const colors = ['red', 'blue', 'green', 'yellow', 'black'];
-    const values = ['2', '5', '9', 'J', 'Q', 'K', 'A', 'Skip', 'Rev'];
+  const initGame = () => {
+    const freshDeck = createDeck();
+    const initialHands = [[], [], [], []];
     
-    const randomCard = {
-      id: Date.now(),
-      color: colors[Math.floor(Math.random() * colors.length)],
-      value: values[Math.floor(Math.random() * values.length)],
-      symbol: ''
-    };
-    randomCard.symbol = randomCard.value === 'Skip' ? '⊘' : randomCard.value === 'Rev' ? '↺' : randomCard.value;
+    // Deal 7 cards to 4 players
+    for (let i = 0; i < 7; i++) {
+      for (let p = 0; p < 4; p++) {
+        initialHands[p].push(freshDeck.pop());
+      }
+    }
     
-    setHand([...hand, randomCard]);
+    const firstDiscard = freshDeck.pop();
+    setDeck(freshDeck);
+    setHands(initialHands);
+    setDiscardPile([firstDiscard]);
+    setTurn(0);
+    setDirection(1);
+    setWinner(null);
+    setDiscardRotation(Math.floor(Math.random() * 20) - 10);
   };
 
-  const playCard = (cardId) => {
-    const cardToPlay = hand.find(c => c.id === cardId);
-    setDiscard(cardToPlay);
-    setHand(hand.filter(c => c.id !== cardId));
+  useEffect(() => {
+    initGame();
+  }, []);
+
+  const isValidPlay = (card, topCard) => {
+    return card.color === topCard.color || card.value === topCard.value;
+  };
+
+  const nextTurn = (skip = false, currentDir = direction, currentTurn = turn) => {
+    let steps = skip ? 2 : 1;
+    let next = (currentTurn + (currentDir * steps)) % 4;
+    if (next < 0) next += 4;
+    setTurn(next);
+  };
+
+  const processPlay = (playerIndex, card) => {
+    // Remove card from hand
+    const newHands = [...hands];
+    newHands[playerIndex] = newHands[playerIndex].filter(c => c.id !== card.id);
+    setHands(newHands);
+    
+    // Add to discard
+    setDiscardPile([...discardPile, card]);
+    setDiscardRotation(Math.floor(Math.random() * 30) - 15);
+
+    // Check Win
+    if (newHands[playerIndex].length === 0) {
+      setWinner(PLAYERS[playerIndex]);
+      return;
+    }
+
+    // Process effects
+    let newDir = direction;
+    let skipNext = false;
+    
+    if (card.value === 'Rev') {
+      newDir = direction * -1;
+      setDirection(newDir);
+    } else if (card.value === 'Skip') {
+      skipNext = true;
+    } else if (card.value === '+2') {
+      // Give 2 cards to next player and skip them
+      let target = (playerIndex + newDir) % 4;
+      if (target < 0) target += 4;
+      
+      const newDeck = [...deck];
+      const cardsToDraw = [newDeck.pop(), newDeck.pop()];
+      setDeck(newDeck);
+      
+      newHands[target] = [...newHands[target], ...cardsToDraw];
+      setHands(newHands);
+      skipNext = true;
+    }
+
+    nextTurn(skipNext, newDir, playerIndex);
+  };
+
+  const handlePlayerPlay = (card) => {
+    if (turn !== 0 || winner) return;
+    const topCard = discardPile[discardPile.length - 1];
+    
+    if (isValidPlay(card, topCard)) {
+      processPlay(0, card);
+    }
+  };
+
+  const handleDrawCard = () => {
+    if (turn !== 0 || winner) return;
+    
+    const newDeck = [...deck];
+    if (newDeck.length === 0) return; // In real uno, we'd reshuffle discard
+    
+    const card = newDeck.pop();
+    setDeck(newDeck);
+    
+    const newHands = [...hands];
+    newHands[0].push(card);
+    setHands(newHands);
+    
+    nextTurn(false, direction, 0);
+  };
+
+  // Bot Logic
+  useEffect(() => {
+    if (turn === 0 || winner || hands[turn].length === 0) return;
+
+    const timer = setTimeout(() => {
+      const topCard = discardPile[discardPile.length - 1];
+      const botHand = hands[turn];
+      
+      // Find valid card
+      const validCard = botHand.find(c => isValidPlay(c, topCard));
+      
+      if (validCard) {
+        processPlay(turn, validCard);
+      } else {
+        // Draw card
+        const newDeck = [...deck];
+        if (newDeck.length > 0) {
+          const card = newDeck.pop();
+          setDeck(newDeck);
+          
+          const newHands = [...hands];
+          newHands[turn].push(card);
+          setHands(newHands);
+        }
+        nextTurn(false, direction, turn);
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [turn, winner]);
+
+  if (deck.length === 0 && discardPile.length === 0) return null; // loading
+
+  const topCard = discardPile[discardPile.length - 1];
+
+  // Calculate card rotations for fanning out the player's hand
+  const getCardStyle = (index, total) => {
+    const middle = (total - 1) / 2;
+    const offset = index - middle;
+    const rotation = offset * 5;
+    const yTransform = Math.abs(offset) * 5;
+    return {
+      transform: `rotate(${rotation}deg) translateY(${yTransform}px)`,
+      zIndex: index + 1
+    };
   };
 
   return (
     <div className="app-container">
       <div className="ambient-light"></div>
       
+      {winner && (
+        <div className="winner-overlay">
+          <h2>{winner} Wins!</h2>
+          <button onClick={initGame}>Play Again</button>
+        </div>
+      )}
+
       <header className="header">
         <h1>UNDERGROUND UNO</h1>
       </header>
 
+      <div className="turn-indicator">
+        Current Turn: <strong>{PLAYERS[turn]}</strong> 
+        {direction === 1 ? ' (Clockwise)' : ' (Counter-Clockwise)'}
+      </div>
+
       <main className="game-area">
-        
-        {/* The 3D Table */}
         <div className="poker-table">
           <div className="table-ring"></div>
         </div>
 
-        {/* Opponents seated around the table */}
         <div className="opponents-container">
-          <PlayerSprite name="Bad Dog" cardsCount={4} className="left" />
-          <PlayerSprite name="Butcher Pig" cardsCount={6} className="center" />
-          <PlayerSprite name="Raging Bull" cardsCount={3} className="right" />
+          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} />
+          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} />
+          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} />
         </div>
 
-        {/* Center of the table */}
         <div className="center-board">
-          <div className="draw-pile" onClick={drawCard} title="Click to Draw"></div>
-          <div className="discard-pile">
-            <Card 
-              color={discard.color} 
-              value={discard.value} 
-              symbol={discard.symbol} 
-              style={{ transform: `rotate(${discardRotation}deg)` }}
-            />
-          </div>
+          <div className="draw-pile" onClick={handleDrawCard} title="Click to Draw"></div>
+          {topCard && (
+            <div className="discard-pile">
+              <Card 
+                color={topCard.color} 
+                value={topCard.value} 
+                symbol={topCard.symbol} 
+                style={{ transform: `rotate(${discardRotation}deg)` }}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Player's perspective hand at the bottom */}
-        <div className="player-hand-container">
+        <div className={`player-hand-container ${turn === 0 ? 'active-turn' : ''}`}>
           <div className="hand">
-            {hand.map((card, index) => (
-              <div key={card.id} onClick={() => playCard(card.id)}>
-                <Card 
-                  color={card.color} 
-                  value={card.value} 
-                  symbol={card.symbol}
-                  style={{ zIndex: index + 1 }}
-                />
-              </div>
-            ))}
+            {hands[0].map((card, index) => {
+              const isValid = topCard ? isValidPlay(card, topCard) : false;
+              return (
+                <div key={card.id} onClick={() => handlePlayerPlay(card)}>
+                  <Card 
+                    color={card.color} 
+                    value={card.value} 
+                    symbol={card.symbol}
+                    style={getCardStyle(index, hands[0].length)}
+                    disabled={turn !== 0 || !isValid}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
         

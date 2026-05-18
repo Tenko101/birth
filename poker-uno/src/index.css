@@ -21,7 +21,6 @@
 
 body {
   background-color: var(--room-bg);
-  /* Gritty brick/basement background gradient */
   background: radial-gradient(circle at 50% 30%, #3d2314 0%, #170d08 60%, #000000 100%);
   color: #fff;
   font-family: 'Russo One', sans-serif;
@@ -31,7 +30,6 @@ body {
   flex-direction: column;
 }
 
-/* Atmospheric lighting effects */
 .ambient-light {
   position: absolute;
   top: 0;
@@ -46,7 +44,6 @@ body {
   z-index: 100;
 }
 
-/* Main Layout */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -78,14 +75,13 @@ body {
   padding-bottom: 20px;
 }
 
-/* The Table - 3D rotated ellipse */
 .poker-table {
   position: absolute;
-  bottom: -20%;
+  bottom: -25%;
   left: 50%;
-  transform: translateX(-50%) rotateX(60deg);
-  width: 120vw;
-  max-width: 1400px;
+  transform: translateX(-50%) rotateX(65deg);
+  width: 140vw;
+  max-width: 1600px;
   height: 80vh;
   background: radial-gradient(circle, #7a3f1d 0%, #361b0c 70%, #140803 100%);
   border-radius: 50%;
@@ -94,9 +90,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 5;
 }
 
-/* White ring on table like the image */
 .table-ring {
   position: absolute;
   width: 60%;
@@ -106,62 +102,74 @@ body {
   box-shadow: 0 0 15px rgba(255, 120, 30, 0.3), inset 0 0 15px rgba(255, 120, 30, 0.3);
 }
 
-/* Opponents Positioning */
 .opponents-container {
   position: absolute;
-  top: 20%;
+  top: 5%;
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-between;
-  padding: 0 15%;
-  z-index: 10;
-  transform-style: preserve-3d;
+  padding: 0 10%;
+  z-index: 2; /* Behind the front edge of the table */
 }
 
 .opponent {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  transition: transform 0.3s;
+}
+
+.opponent.active-turn {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 20px var(--glow-orange));
 }
 
 .opponent.center {
-  transform: translateY(-50px);
+  transform: translateY(-40px);
+}
+.opponent.center.active-turn {
+  transform: translateY(-40px) scale(1.05);
+}
+
+/* Full body sprite placeholder */
+.player-sprite-placeholder {
+  width: 250px;
+  height: 380px;
+  background: rgba(0,0,0,0.3);
+  border: 2px dashed #666;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #aaa;
+  font-size: 1rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  position: relative;
 }
 
 .opponent-stats {
   text-align: center;
+  background: rgba(0,0,0,0.6);
+  padding: 5px 15px;
+  border-radius: 20px;
+  border: 1px solid #444;
 }
 
 .opponent-name {
   font-size: 1.2rem;
   text-shadow: 2px 2px 0px #000;
-  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .opponent-cards {
   font-family: 'Crete Round', serif;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #ddd;
 }
 
-.player-sprite-placeholder {
-  width: 140px;
-  height: 140px;
-  background: rgba(0,0,0,0.6);
-  border: 2px solid #555;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #888;
-  font-size: 0.9rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-  position: relative;
-}
-
-/* Center Board (Deck and Discard) */
 .center-board {
   position: absolute;
   top: 45%;
@@ -185,12 +193,11 @@ body {
   transition: transform 0.1s;
 }
 
-.draw-pile:active {
-  transform: translateY(2px) translateX(-2px);
-  box-shadow: -2px 2px 5px rgba(0,0,0,0.8);
+.draw-pile:active, .draw-pile:hover {
+  transform: translateY(-5px);
+  box-shadow: -2px 8px 15px rgba(0,0,0,0.8);
 }
 
-/* Player Hand - First person perspective */
 .player-hand-container {
   position: absolute;
   bottom: 0;
@@ -207,9 +214,13 @@ body {
   justify-content: center;
   align-items: flex-end;
   gap: -40px;
+  transition: all 0.3s ease;
 }
 
-/* Card Styling - Gritty */
+.player-hand-container.active-turn .playing-card {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 10px 20px rgba(0,0,0,0.6);
+}
+
 .playing-card {
   width: 100px;
   height: 150px;
@@ -224,35 +235,31 @@ body {
   box-shadow: 0 10px 20px rgba(0,0,0,0.6);
   position: relative;
   cursor: pointer;
-  margin: 0 -25px; 
+  margin: 0 -30px; 
   transform-origin: bottom center;
-  transition: transform 0.2s, z-index 0s;
+  transition: transform 0.2s, margin 0.2s, z-index 0s;
   border: 1px solid rgba(0,0,0,0.5);
   font-family: 'Crete Round', serif;
   font-weight: bold;
 }
 
-/* Fanning out the cards */
-.hand > div:nth-child(1) .playing-card { transform: rotate(-15deg) translateY(10px); }
-.hand > div:nth-child(2) .playing-card { transform: rotate(-5deg) translateY(0px); }
-.hand > div:nth-child(3) .playing-card { transform: rotate(5deg) translateY(0px); }
-.hand > div:nth-child(4) .playing-card { transform: rotate(15deg) translateY(10px); }
-.hand > div:nth-child(5) .playing-card { transform: rotate(25deg) translateY(25px); }
-
-.playing-card:hover {
-  transform: translateY(-30px) rotate(0deg) scale(1.1) !important;
-  z-index: 50 !important;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+.playing-card.disabled {
+  filter: brightness(0.5);
+  cursor: not-allowed;
 }
 
-/* Gritty Card Colors */
+.playing-card:not(.disabled):hover {
+  transform: translateY(-40px) scale(1.15) !important;
+  z-index: 50 !important;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.9);
+  margin: 0 10px;
+}
+
 .playing-card.red { color: var(--card-red); border: 6px solid var(--card-red); }
 .playing-card.blue { color: var(--card-blue); border: 6px solid var(--card-blue); }
 .playing-card.green { color: var(--card-green); border: 6px solid var(--card-green); }
 .playing-card.yellow { color: var(--card-yellow); border: 6px solid var(--card-yellow); }
-.playing-card.black { color: #111; border: 6px solid #111; }
 
-/* Dirt/grime overlay for cards */
 .playing-card::after {
   content: '';
   position: absolute;
@@ -273,7 +280,47 @@ body {
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-.discard-pile .playing-card {
-  margin: 0;
-  transform: rotate(random(10)deg); /* Handled in JSX */
+.turn-indicator {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.7);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--glow-orange);
+  z-index: 200;
+  font-size: 1.2rem;
+  color: var(--glow-orange);
+}
+
+.winner-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.winner-overlay h2 {
+  font-size: 4rem;
+  color: var(--glow-orange);
+  text-shadow: 0 0 20px var(--glow-red);
+}
+
+.winner-overlay button {
+  padding: 15px 30px;
+  font-size: 1.5rem;
+  background: var(--table-color);
+  color: white;
+  border: 2px solid var(--glow-orange);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Russo One', sans-serif;
+}
+.winner-overlay button:hover {
+  background: var(--glow-orange);
 }
