@@ -46,14 +46,20 @@ const OpponentHand = ({ count }) => {
   );
 };
 
-const PlayerSprite = ({ name, cardsCount, className, isActive }) => (
-  <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
-    <div className="player-sprite-placeholder" title="Add full body sprite here!">
-      {name} <br/> (Sprite Area)
+const PlayerSprite = ({ name, cardsCount, className, isActive, expression }) => {
+  let currentExpression = expression;
+  if (!currentExpression && cardsCount === 1) currentExpression = 'uno';
+
+  return (
+    <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
+      <div className={`player-sprite-placeholder ${currentExpression}`} title="Add full body sprite here!">
+        {name} <br/> (Sprite Area)
+        {currentExpression && <div className="expr-tag">{currentExpression.replace('-', ' ').toUpperCase()}</div>}
+      </div>
+      <OpponentHand count={cardsCount} />
     </div>
-    <OpponentHand count={cardsCount} />
-  </div>
-);
+  );
+};
 
 function App() {
   const [deck, setDeck] = useState([]);
@@ -63,6 +69,7 @@ function App() {
   const [direction, setDirection] = useState(1);
   const [winner, setWinner] = useState(null);
   const [discardRotation, setDiscardRotation] = useState(0);
+  const [expressions, setExpressions] = useState(['', '', '', '']);
 
   const initGame = () => {
     const freshDeck = createDeck();
@@ -82,6 +89,7 @@ function App() {
     setTurn(0);
     setDirection(1);
     setWinner(null);
+    setExpressions(['', '', '', '']);
     setDiscardRotation(Math.floor(Math.random() * 20) - 10);
   };
 
@@ -119,25 +127,38 @@ function App() {
     // Process effects
     let newDir = direction;
     let skipNext = false;
+    let target = (playerIndex + newDir) % 4;
+    if (target < 0) target += 4;
     
+    const newExpressions = [...expressions];
+
     if (card.value === 'Rev') {
       newDir = direction * -1;
       setDirection(newDir);
+      newExpressions[playerIndex] = 'played-action';
     } else if (card.value === 'Skip') {
       skipNext = true;
+      newExpressions[playerIndex] = 'played-action';
+      newExpressions[target] = 'got-skipped';
     } else if (card.value === '+2') {
-      // Give 2 cards to next player and skip them
-      let target = (playerIndex + newDir) % 4;
-      if (target < 0) target += 4;
+      skipNext = true;
+      newExpressions[playerIndex] = 'played-action';
+      newExpressions[target] = 'got-skipped';
       
       const newDeck = [...deck];
-      const cardsToDraw = [newDeck.pop(), newDeck.pop()];
+      const cardsToDraw = [];
+      if (newDeck.length > 0) cardsToDraw.push(newDeck.pop());
+      if (newDeck.length > 0) cardsToDraw.push(newDeck.pop());
       setDeck(newDeck);
       
       newHands[target] = [...newHands[target], ...cardsToDraw];
       setHands(newHands);
-      skipNext = true;
+    } else {
+      // Clear expression if they played a normal card
+      newExpressions[playerIndex] = '';
     }
+    
+    setExpressions(newExpressions);
 
     nextTurn(skipNext, newDir, playerIndex);
   };
@@ -167,9 +188,21 @@ function App() {
     nextTurn(false, direction, 0);
   };
 
-  // Bot Logic
+  // Bot Logic and Turn Management
   useEffect(() => {
-    if (turn === 0 || winner || hands[turn].length === 0) return;
+    if (winner) return;
+    
+    // Clear expression for the player whose turn just started
+    setExpressions(prev => {
+      if (prev[turn] !== '') {
+        const nextExp = [...prev];
+        nextExp[turn] = '';
+        return nextExp;
+      }
+      return prev;
+    });
+
+    if (turn === 0 || hands[turn].length === 0) return;
 
     const timer = setTimeout(() => {
       const topCard = discardPile[discardPile.length - 1];
@@ -236,9 +269,9 @@ function App() {
 
       <main className="game-area">
         <div className="opponents-container">
-          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} />
-          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} />
-          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} />
+          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} expression={expressions[1]} />
+          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} expression={expressions[2]} />
+          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} expression={expressions[3]} />
         </div>
 
         <div className="poker-table">
