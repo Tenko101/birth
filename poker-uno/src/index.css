@@ -127,17 +127,17 @@ body {
 .opponent.right { margin-top: 150px; }
 .opponent.center { margin-top: 50px; }
 
-/* Apply tilts individually */
+/* Apply tilts individually - Removed rotations to keep them upright */
 .opponent.left .player-sprite-placeholder,
 .opponent.left .opponent-hand,
 .opponent.left .opponent-stats {
-  transform: rotate(10deg);
+  transform: none;
 }
 
 .opponent.right .player-sprite-placeholder,
 .opponent.right .opponent-hand,
 .opponent.right .opponent-stats {
-  transform: rotate(-10deg);
+  transform: none;
 }
 
 .player-sprite-placeholder {
@@ -168,7 +168,7 @@ body {
 
 .opponent-hand {
   position: absolute;
-  bottom: 0px;
+  bottom: 120px;
   display: flex;
   justify-content: center;
   
@@ -190,7 +190,7 @@ body {
 
 .opponent-stats {
   position: absolute;
-  bottom: -60px;
+  bottom: 10px;
   text-align: center;
   background: #111;
   padding: 8px 20px;
