@@ -66,7 +66,6 @@ const PlayerSprite = ({ name, cardsCount, className, isActive, expression, sprit
           alt={name}
           className="player-sprite-image" 
         />
-        {currentExpression && <div className="expr-tag">{currentExpression.replace('-', ' ').toUpperCase()}</div>}
       </div>
       <OpponentHand count={cardsCount} />
     </div>
