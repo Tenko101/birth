@@ -239,15 +239,14 @@ function App() {
       </div>
 
       <main className="game-area">
+        <div className="opponents-container">
+          <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} />
+          <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} />
+          <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} />
+        </div>
+
         <div className="poker-table">
           <div className="table-ring"></div>
-          
-          <div className="opponents-container">
-            <PlayerSprite name="Bad Dog" cardsCount={hands[1].length} className="left" isActive={turn === 1} />
-            <PlayerSprite name="Butcher Pig" cardsCount={hands[2].length} className="center" isActive={turn === 2} />
-            <PlayerSprite name="Raging Bull" cardsCount={hands[3].length} className="right" isActive={turn === 3} />
-          </div>
-
           <div className="center-board">
             <div className="draw-pile" onClick={handleDrawCard} title="Click to Draw"></div>
             {topCard && (
