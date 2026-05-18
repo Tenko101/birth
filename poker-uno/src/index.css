@@ -123,9 +123,10 @@ body {
 }
 
 /* Position them down so the table overlays them via margin, NOT transform */
-.opponent.left { margin-top: 200px; }
-.opponent.right { margin-top: 200px; }
-.opponent.center { margin-top: 150px; }
+/* Using vh (viewport height) ensures they stay perfectly aligned relative to the table on any screen height! */
+.opponent.left { margin-top: 22vh; }
+.opponent.right { margin-top: 22vh; }
+.opponent.center { margin-top: 15vh; }
 
 /* Apply tilts individually - Removed rotations to keep them upright */
 .opponent.left .player-sprite-placeholder,
