@@ -52,10 +52,6 @@ const PlayerSprite = ({ name, cardsCount, className, isActive }) => (
       {name} <br/> (Sprite Area)
     </div>
     <OpponentHand count={cardsCount} />
-    <div className="opponent-stats">
-      <div className="opponent-name">{name}</div>
-      <div className="opponent-cards">Cards: {cardsCount}</div>
-    </div>
   </div>
 );
 
