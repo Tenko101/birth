@@ -73,17 +73,17 @@ body {
   justify-content: center;
   align-items: flex-end;
   padding-bottom: 20px;
-  transform-style: preserve-3d;
+  /* Removed preserve-3d here to prevent player cards clipping through the table */
 }
 
 .poker-table {
   position: absolute;
-  bottom: -35%;
+  bottom: -45%;
   left: 50%;
-  transform: translateX(-50%) rotateX(70deg);
+  transform: translateX(-50%) rotateX(75deg);
   width: 150vw;
   max-width: 1800px;
-  height: 90vh;
+  height: 100vh;
   background: radial-gradient(circle, #7a3f1d 0%, #361b0c 70%, #140803 100%);
   border-radius: 50%;
   box-shadow: inset 0 0 100px #000, 0 20px 50px #000;
@@ -91,7 +91,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10; /* Table is IN FRONT of opponents */
+  z-index: 10;
+  transform-style: preserve-3d;
 }
 
 .table-ring {
@@ -105,13 +106,13 @@ body {
 
 .opponents-container {
   position: absolute;
-  top: 5%;
+  top: 15%; /* Lowered so they sit AT the table */
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-between;
   padding: 0 5%;
-  z-index: 5; /* Behind the table */
+  z-index: 5;
 }
 
 .opponent {
@@ -120,12 +121,12 @@ body {
   align-items: center;
   transition: transform 0.3s;
   position: relative;
-  transform: translateY(100px); /* Sink behind table */
+  transform: translateY(120px);
 }
 
-.opponent.left { transform: translateY(150px) rotate(10deg); }
-.opponent.right { transform: translateY(150px) rotate(-10deg); }
-.opponent.center { transform: translateY(60px); }
+.opponent.left { transform: translateY(180px) rotate(10deg); }
+.opponent.right { transform: translateY(180px) rotate(-10deg); }
+.opponent.center { transform: translateY(80px); }
 
 .opponent.active-turn .player-sprite-placeholder {
   box-shadow: 0 0 30px var(--glow-orange);
@@ -149,13 +150,12 @@ body {
   transition: all 0.3s;
 }
 
-/* Opponent's Cards */
 .opponent-hand {
   position: absolute;
-  bottom: 60px; /* Position cards near their hands/chest */
+  bottom: 60px;
   display: flex;
   justify-content: center;
-  z-index: 15; /* In front of sprite */
+  z-index: 15;
 }
 
 .opponent-card-back {
@@ -178,7 +178,7 @@ body {
   padding: 5px 15px;
   border-radius: 10px;
   border: 1px solid #444;
-  z-index: 20; /* Ensure stats show above table if needed, though they might be hidden depending on placement */
+  z-index: 20;
 }
 
 .opponent-name {
@@ -187,17 +187,15 @@ body {
   font-weight: bold;
 }
 
-/* Center Board (Flat on table) */
+/* Center Board now inside the table */
 .center-board {
   position: absolute;
-  top: 60%;
+  top: 50%;
   left: 50%;
-  /* Rotate to lie flat on the table */
-  transform: translate(-50%, -50%) rotateX(60deg) scale(0.9);
-  transform-style: preserve-3d;
+  transform: translate(-50%, -50%);
   display: flex;
   gap: 40px;
-  z-index: 15; /* Above table */
+  transform-style: preserve-3d;
 }
 
 .draw-pile {
@@ -211,7 +209,7 @@ body {
   position: relative;
   background-image: repeating-linear-gradient(45deg, #1a1a1a 0, #1a1a1a 8px, #111 8px, #111 16px);
   transition: transform 0.1s;
-  transform: translateZ(5px);
+  transform: translateZ(5px); /* Gives it 3D depth relative to table */
 }
 
 .draw-pile::after {
@@ -231,10 +229,10 @@ body {
   box-shadow: -2px 2px 0px #000;
 }
 
-/* 3D thickness for discard pile cards */
 .discard-pile .playing-card {
   box-shadow: -3px 3px 0px #aaa, -4px 4px 10px rgba(0,0,0,0.8);
   margin: 0;
+  transform: translateZ(2px);
 }
 
 .player-hand-container {
