@@ -33,11 +33,25 @@ const Card = ({ color, value, symbol, style, disabled }) => {
   );
 };
 
+const OpponentHand = ({ count }) => {
+  return (
+    <div className="opponent-hand">
+      {Array.from({ length: count }).map((_, i) => {
+        const offset = i - (count - 1) / 2;
+        const rot = offset * 8;
+        const y = Math.abs(offset) * 3;
+        return <div key={i} className="opponent-card-back" style={{ transform: `rotate(${rot}deg) translateY(${y}px)` }} />
+      })}
+    </div>
+  );
+};
+
 const PlayerSprite = ({ name, cardsCount, className, isActive }) => (
   <div className={`opponent ${className} ${isActive ? 'active-turn' : ''}`}>
     <div className="player-sprite-placeholder" title="Add full body sprite here!">
       {name} <br/> (Sprite Area)
     </div>
+    <OpponentHand count={cardsCount} />
     <div className="opponent-stats">
       <div className="opponent-name">{name}</div>
       <div className="opponent-cards">Cards: {cardsCount}</div>
