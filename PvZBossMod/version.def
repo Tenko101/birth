@@ -1,0 +1,34 @@
+; ============================================================================
+; version.def — Module Definition File for version.dll Proxy
+; ============================================================================
+;
+; WHAT THIS FILE DOES:
+;   When PvZ loads, Windows automatically loads "version.dll" from the game's
+;   directory (because of DLL search order). We name our mod DLL "version.dll"
+;   so the game loads us automatically — no injector tool needed!
+;
+;   Each line exports a function name and forwards it to our proxy functions
+;   defined in dllmain.cpp (which in turn call the real version.dll).
+;
+; ============================================================================
+
+LIBRARY version
+
+EXPORTS
+    GetFileVersionInfoA       = versionProxy_GetFileVersionInfoA
+    GetFileVersionInfoByHandle = versionProxy_GetFileVersionInfoByHandle
+    GetFileVersionInfoExA     = versionProxy_GetFileVersionInfoExA
+    GetFileVersionInfoExW     = versionProxy_GetFileVersionInfoExW
+    GetFileVersionInfoSizeA   = versionProxy_GetFileVersionInfoSizeA
+    GetFileVersionInfoSizeExA = versionProxy_GetFileVersionInfoSizeExA
+    GetFileVersionInfoSizeExW = versionProxy_GetFileVersionInfoSizeExW
+    GetFileVersionInfoSizeW   = versionProxy_GetFileVersionInfoSizeW
+    GetFileVersionInfoW       = versionProxy_GetFileVersionInfoW
+    VerFindFileA              = versionProxy_VerFindFileA
+    VerFindFileW              = versionProxy_VerFindFileW
+    VerInstallFileA           = versionProxy_VerInstallFileA
+    VerInstallFileW           = versionProxy_VerInstallFileW
+    VerLanguageNameA          = versionProxy_VerLanguageNameA
+    VerLanguageNameW          = versionProxy_VerLanguageNameW
+    VerQueryValueA            = versionProxy_VerQueryValueA
+    VerQueryValueW            = versionProxy_VerQueryValueW
