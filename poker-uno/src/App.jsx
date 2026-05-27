@@ -566,6 +566,25 @@ const BouncingSeals = () => {
   );
 };
 
+const FoxyJumpscare = ({ onDone }) => {
+  const basePath = import.meta.env.BASE_URL || '/';
+
+  useEffect(() => {
+    const timer = setTimeout(onDone, 2000);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
+  return (
+    <div className="foxy-overlay" onClick={onDone}>
+      <img 
+        src={`${basePath}foxy-jumpscare.gif`} 
+        alt="BOO!" 
+        className="foxy-img"
+      />
+    </div>
+  );
+};
+
 function App() {
   const [deck, setDeck] = useState([]);
   const [discardPile, setDiscardPile] = useState([]);
@@ -621,16 +640,6 @@ function App() {
   useEffect(() => {
     initGame();
   }, []);
-
-  useEffect(() => {
-    const handleClick = () => {
-      if (!showFoxy && Math.random() < 0.0001) {
-        setShowFoxy(true);
-      }
-    };
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
-  }, [showFoxy]);
 
   const isValidPlay = (card, topCard) => {
     return card.color === topCard.color || card.value === topCard.value;
@@ -847,7 +856,7 @@ function App() {
               src={`${basePath}present1.jpg`} 
               alt="Present 1" 
               className="present-sprite" 
-              onClick={() => setShowUnfinished(true)}
+              onClick={() => setShowFoxy(true)}
             />
           </div>
           <div className="extras-buttons">
@@ -901,17 +910,7 @@ function App() {
         </div>
       )}
 
-      {showFoxy && (
-        <div className="foxy-overlay" onClick={() => setShowFoxy(false)}>
-          <img 
-            src={`${basePath}foxy-jumpscare.gif`} 
-            alt="BOO!" 
-            className="foxy-img"
-            onClick={e => e.stopPropagation()}
-          />
-          <button className="close-big-present" onClick={() => setShowFoxy(false)}>Close</button>
-        </div>
-      )}
+      {showFoxy && <FoxyJumpscare onDone={() => setShowFoxy(false)} />}
 
       <div className="turn-indicator">
         Current Turn: <strong>{PLAYERS[turn]}</strong> 
