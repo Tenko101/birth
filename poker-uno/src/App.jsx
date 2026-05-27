@@ -585,6 +585,7 @@ function App() {
   const [showUnfinished, setShowUnfinished] = useState(false);
   const [showBigSealImage, setShowBigSealImage] = useState(false);
   const [showBigAssetsImage, setShowBigAssetsImage] = useState(false);
+  const [showFoxy, setShowFoxy] = useState(false);
 
   const initGame = () => {
     const freshDeck = createDeck();
@@ -620,6 +621,16 @@ function App() {
   useEffect(() => {
     initGame();
   }, []);
+
+  useEffect(() => {
+    const handleClick = () => {
+      if (!showFoxy && Math.random() < 0.0001) {
+        setShowFoxy(true);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [showFoxy]);
 
   const isValidPlay = (card, topCard) => {
     return card.color === topCard.color || card.value === topCard.value;
@@ -887,6 +898,18 @@ function App() {
             onClick={e => e.stopPropagation()} 
           />
           <button className="close-big-present" onClick={() => setShowBigAssetsImage(false)}>close</button>
+        </div>
+      )}
+
+      {showFoxy && (
+        <div className="foxy-overlay" onClick={() => setShowFoxy(false)}>
+          <img 
+            src={`${basePath}foxy-jumpscare.gif`} 
+            alt="BOO!" 
+            className="foxy-img"
+            onClick={e => e.stopPropagation()}
+          />
+          <button className="close-big-present" onClick={() => setShowFoxy(false)}>Close</button>
         </div>
       )}
 
